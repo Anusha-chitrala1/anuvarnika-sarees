@@ -20,7 +20,7 @@
     "deploy:api:uat": "pnpm --filter @anuvarnika/api exec wrangler deploy --env uat",
     "deploy:api:prod": "pnpm --filter @anuvarnika/api exec wrangler deploy --env production",
     "deploy:web:uat": "pnpm --filter @anuvarnika/web exec vite build --mode uat && pnpm --filter @anuvarnika/web exec wrangler pages deploy dist --project-name anuvarnika-web-uat",
-    "deploy:web:prod": "pnpm --filter @anuvarnika/web exec vite build --mode production && pnpm --filter @anuvarnika/web exec wrangler pages deploy dist --project-name anuvarnika-web-prod"
+    "deploy:web:prod": "pnpm --filter @anuvarnika/web exec vite build --mode production && pnpm --filter @anuvarnika/web exec wrangler pages deploy dist --project-name anuvarnika-sarees"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

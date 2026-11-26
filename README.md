@@ -190,19 +190,19 @@ AnuVarnika Sarees sends transactional emails directly from your store Gmail acco
 
    # Configure Cloudflare Workers secrets
    cd apps/api
-   pnpm wrangler secret put GMAIL_CLIENT_ID
-   pnpm wrangler secret put GMAIL_CLIENT_SECRET
-   pnpm wrangler secret put GMAIL_REFRESH_TOKEN
-   pnpm wrangler secret put SESSION_SECRET
-   pnpm wrangler secret put ADMIN_EMAIL
-   pnpm wrangler secret put TELEGRAM_BOT_TOKEN
-   pnpm wrangler secret put TELEGRAM_OWNER_CHAT_ID
+   pnpm wrangler secret put GMAIL_CLIENT_ID --env production
+   pnpm wrangler secret put GMAIL_CLIENT_SECRET --env production
+   pnpm wrangler secret put GMAIL_REFRESH_TOKEN --env production
+   pnpm wrangler secret put SESSION_SECRET --env production
+   pnpm wrangler secret put ADMIN_EMAIL --env production
+   pnpm wrangler secret put TELEGRAM_BOT_TOKEN --env production
+   pnpm wrangler secret put TELEGRAM_OWNER_CHAT_ID --env production
    ```
 
 ### Step 5: Deploy Workers API & Pages Frontend
 ```bash
 # Deploy Backend API to Cloudflare Workers
-pnpm --filter @anuvarnika/api deploy
+pnpm --filter @anuvarnika/api exec wrangler deploy --env production
 
 # Deploy Frontend to Cloudflare Pages
 pnpm --filter @anuvarnika/web build

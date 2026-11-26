@@ -1,0 +1,91 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "anuvarnika-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-02-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "anuvarnika-db",
+      "database_id": "anuvarnika-d1-local",
+      "migrations_dir": "../../packages/db/migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "anuvarnika-assets"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "development",
+    "STORE_NAME": "AnuVarnika Sarees",
+    "UPI_ID": "anuvarnika@okaxis",
+    "ADMIN_EMAIL": "anuvarnika.sarees@gmail.com",
+    "GMAIL_SENDER_EMAIL": "anuvarnika.sarees@gmail.com",
+    "GMAIL_SENDER_NAME": "AnuVarnika Sarees",
+    "SESSION_SECRET": "anuvarnika-secret-key-32-chars-minimum-required",
+    "CROSS_ORIGIN_COOKIES": "false",
+    "DELHIVERY_PERSONAL": "true",
+    "APP_BASE_URL": "http://localhost:5173"
+  },
+  "env": {
+    "uat": {
+      "name": "anuvarnika-api-uat",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "anuvarnika-db-uat",
+          "database_id": "REPLACE_WITH_UAT_D1_DATABASE_ID",
+          "migrations_dir": "../../packages/db/migrations"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "BUCKET",
+          "bucket_name": "anuvarnika-assets-uat"
+        }
+      ],
+      "vars": {
+        "ENVIRONMENT": "uat",
+        "STORE_NAME": "AnuVarnika Sarees (UAT)",
+        "UPI_ID": "anuvarnika@okaxis",
+        "ADMIN_EMAIL": "anuvarnika.sarees@gmail.com",
+        "GMAIL_SENDER_EMAIL": "anuvarnika.sarees@gmail.com",
+        "GMAIL_SENDER_NAME": "AnuVarnika Sarees",
+        "CROSS_ORIGIN_COOKIES": "true",
+        "DELHIVERY_PERSONAL": "true",
+        "APP_BASE_URL": "https://anuvarnika-web-uat.pages.dev"
+      }
+    },
+    "production": {
+      "name": "anuvarnika-api-prod",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "anuvarnika-db-prod",
+          "database_id": "REPLACE_WITH_PROD_D1_DATABASE_ID",
+          "migrations_dir": "../../packages/db/migrations"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "BUCKET",
+          "bucket_name": "anuvarnika-assets-prod"
+        }
+      ],
+      "vars": {
+        "ENVIRONMENT": "production",
+        "STORE_NAME": "AnuVarnika Sarees",
+        "UPI_ID": "anuvarnika@okaxis",
+        "ADMIN_EMAIL": "anuvarnika.sarees@gmail.com",
+        "GMAIL_SENDER_EMAIL": "anuvarnika.sarees@gmail.com",
+        "GMAIL_SENDER_NAME": "AnuVarnika Sarees",
+        "CROSS_ORIGIN_COOKIES": "true",
+        "DELHIVERY_PERSONAL": "true",
+        "APP_BASE_URL": "https://anuvarnikasarees.pages.dev"
+      }
+    }
+  }
+}

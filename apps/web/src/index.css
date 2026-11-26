@@ -1,0 +1,215 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-canvas: #FAF5EB;
+  --surface-card: #FFFDF9;
+  --brand-primary: #7A231E;
+  --brand-accent: #A8793E;
+  --brand-secondary: #D98273;
+  --ink-primary: #2B1E1A;
+  --ink-muted: #6E5A52;
+  --font-heading: 'Lora';
+  --font-body: 'DM Sans';
+  --border-radius: 10px;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--ink-primary);
+  font-family: var(--font-body), 'DM Sans', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-heading), 'Lora', Georgia, serif;
+}
+
+/* Accessible keyboard focus indicators */
+:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Modern Web Guidance: Native dialog scroll containment */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog[open] {
+  animation: modalPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgba(43, 30, 26, 0.65);
+  backdrop-filter: blur(8px);
+  animation: backdropFadeIn 0.28s ease-out forwards;
+}
+
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Hide scrollbars cleanly for horizontal pill bars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Delicate editorial scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 121, 62, 0.55);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary);
+}
+
+/* ========================================================
+   HIGH-PERFORMANCE LUXURY ANIMATIONS & MICRO-INTERACTIONS
+   (Compositor & GPU accelerated: opacity & transform only)
+   ======================================================== */
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(168, 121, 62, 0.2), 0 0 30px rgba(122, 35, 30, 0.08);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(168, 121, 62, 0.4), 0 0 45px rgba(122, 35, 30, 0.18);
+  }
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0.6deg);
+  }
+}
+
+@keyframes shimmerSlide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes shimmerGradient {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+.animate-float-gentle {
+  animation: floatGentle 6s ease-in-out infinite;
+}
+
+/* Luxury Silk Sheen effect on hover */
+.silk-shimmer-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.silk-shimmer-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 100%
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  pointer-events: none;
+  transition: transform 0.85s ease;
+}
+
+.silk-shimmer-wrapper:hover::after {
+  transform: translateX(280%) skewX(-20deg);
+}
+
+/* Skeleton Loading Shimmer */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(168, 121, 62, 0.08) 25%,
+    rgba(168, 121, 62, 0.18) 50%,
+    rgba(168, 121, 62, 0.08) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmerGradient 2s infinite ease-in-out;
+}
+
+/* Tactile Button Micro-Interactions */
+.btn-tactile {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, box-shadow;
+}
+
+.btn-tactile:active {
+  transform: scale(0.97) translateY(1px);
+}
+
+/* Respect prefers-reduced-motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

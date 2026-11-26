@@ -1,0 +1,30 @@
+{
+  "name": "anuvarnika-sarees-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter @anuvarnika/api dev\" \"pnpm --filter @anuvarnika/web dev\"",
+    "dev:api": "pnpm --filter @anuvarnika/api dev",
+    "dev:web": "pnpm --filter @anuvarnika/web dev",
+    "build": "pnpm --filter @anuvarnika/shared build && pnpm --filter @anuvarnika/db build && pnpm --filter @anuvarnika/api build && pnpm --filter @anuvarnika/web build",
+    "test": "pnpm --filter @anuvarnika/api test",
+    "test:email": "pnpm --filter @anuvarnika/api test:email",
+    "db:migrate:local": "pnpm --filter @anuvarnika/api exec wrangler d1 migrations apply anuvarnika-db --local",
+    "db:seed:local": "pnpm --filter @anuvarnika/api exec wrangler d1 execute anuvarnika-db --local --file=../../packages/db/seeds/seed-uat.sql",
+    "db:seed:local:clean": "pnpm --filter @anuvarnika/api exec wrangler d1 execute anuvarnika-db --local --file=../../packages/db/seeds/seed-prod.sql",
+    "db:migrate:uat": "pnpm --filter @anuvarnika/api exec wrangler d1 migrations apply anuvarnika-db-uat --env uat --remote",
+    "db:seed:uat": "pnpm --filter @anuvarnika/api exec wrangler d1 execute anuvarnika-db-uat --env uat --remote --file=../../packages/db/seeds/seed-uat.sql",
+    "db:migrate:prod": "pnpm --filter @anuvarnika/api exec wrangler d1 migrations apply anuvarnika-db-prod --env production --remote",
+    "db:seed:prod": "pnpm --filter @anuvarnika/api exec wrangler d1 execute anuvarnika-db-prod --env production --remote --file=../../packages/db/seeds/seed-prod.sql",
+    "deploy:api:uat": "pnpm --filter @anuvarnika/api exec wrangler deploy --env uat",
+    "deploy:api:prod": "pnpm --filter @anuvarnika/api exec wrangler deploy --env production",
+    "deploy:web:uat": "pnpm --filter @anuvarnika/web exec vite build --mode uat && pnpm --filter @anuvarnika/web exec wrangler pages deploy dist --project-name anuvarnika-web-uat",
+    "deploy:web:prod": "pnpm --filter @anuvarnika/web exec vite build --mode production && pnpm --filter @anuvarnika/web exec wrangler pages deploy dist --project-name anuvarnika-web-prod"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.7.3",
+    "wrangler": "^3.111.0"
+  }
+}

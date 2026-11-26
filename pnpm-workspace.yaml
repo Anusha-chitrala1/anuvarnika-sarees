@@ -1,0 +1,11 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
+  '@tailwindcss/oxide': true
+  unrs-io: true
+  better-sqlite3: true

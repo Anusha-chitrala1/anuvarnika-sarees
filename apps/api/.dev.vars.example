@@ -1,0 +1,17 @@
+# Local API Development Secrets (copy to apps/api/.dev.vars)
+# Gmail REST API OAuth2 credentials (leave GMAIL_REFRESH_TOKEN empty in development to log emails to console)
+GMAIL_CLIENT_ID=
+GMAIL_CLIENT_SECRET=
+GMAIL_REFRESH_TOKEN=
+GMAIL_SENDER_EMAIL=anuvarnika.sarees@gmail.com
+GMAIL_SENDER_NAME=AnuVarnika Sarees
+
+SESSION_SECRET=anuvarnika-local-secret-key-minimum-32-chars
+ADMIN_EMAIL=anuvarnika.sarees@gmail.com
+UPI_ID=anuvarnika@okaxis
+DELHIVERY_PERSONAL=true
+
+# Telegram Bot-Only Owner Alerts (leave blank in development to log alerts to console)
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_OWNER_CHAT_ID=
+APP_BASE_URL=http://localhost:5173

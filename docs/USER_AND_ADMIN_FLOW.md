@@ -42,10 +42,10 @@
    └─► Enter 12-Digit Bank UTR Reference (+ Optional Screenshot)
           │
           ▼
-[My Orders & Live Delhivery Tracking]
+[My Orders & Direct Delhivery Tracking]
    ├─► View Ordered Items (Image, Saree Title, Shade, Qty, Price)
    ├─► Receive Email when Admin Approves Payment
-   ├─► Track Live Delhivery Status & Copyable AWB Link
+   ├─► Direct 1-Tap "Track on Delhivery" Redirection Link
    └─► Unlock "Write a Verified Review" Once Delivered
 ```
 
@@ -65,8 +65,9 @@ The Admin Command Hub uses a **full-width Left-Sidebar dashboard** unlocked when
    - Tapping the Telegram link while logged out redirects to `/admin/login?redirect=...` and returns straight to the highlighted verification card after Owner OTP login.
    - View uploaded payment screenshot, copy UTR, verify bank credit, and **Approve Payment** (commits real stock & emails customer) or **Reject Payment** (releases stock hold & emails customer rejection reason).
 4. **Delhivery & Orders**:
-   - **Personal Delhivery Mode (`DELHIVERY_PERSONAL=true`):** Admin pastes the Delhivery tracking link (and optional AWB) + updates status; customers see the direct tracking link in **My Orders** and **Order Tracking**.
-   - **Merchant API Mode (`DELHIVERY_PERSONAL=false`):** Enter the AWB ID and live scans sync automatically (`Sync Delhivery`) when `DELHIVERY_API_TOKEN` is configured.
+   - Admin enters the Delhivery AWB number (or courier tracking link) upon booking.
+   - The platform automatically generates the official Delhivery tracking redirect link (`https://www.delhivery.com/track/package/${awbNumber}`) for order confirmation emails, the **My Orders** list, and **Order Details**.
+   - Customers tap **"Track on Delhivery ↗"** and are redirected straight to Delhivery's live portal for real-time milestones, delivery agent contacts, and arrival updates—zero API token complexity or polling latency.
 5. **Saree Catalog & Dedicated Add / Edit Saree Page**:
    - Manage Pin-to-Top, Sold-Out toggle, Archive, or open the full-page **Add / Edit Saree** editor:
      - Required fields (`*`): Title, Description, at least 1 Color Variant (Color, SKU, Stock, Sale Price ₹, MRP ₹).

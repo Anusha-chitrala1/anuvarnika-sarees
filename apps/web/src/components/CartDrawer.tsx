@@ -103,7 +103,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate, onProceedToC
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-            className="relative w-full sm:w-[440px] sm:max-w-md h-full h-[100dvh] max-h-[100dvh] bg-surface sm:border-l border-accent/20 shadow-2xl flex flex-col z-10 overflow-hidden"
+            className="relative w-full max-w-full sm:max-w-md sm:w-[440px] h-full h-[100dvh] max-h-[100dvh] bg-surface sm:border-l border-accent/20 shadow-2xl flex flex-col z-10 overflow-hidden"
           >
             {/* Header */}
             <div className="shrink-0 p-4 sm:p-5 border-b border-accent/20 flex items-center justify-between bg-canvas/40">
@@ -297,12 +297,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate, onProceedToC
             {/* Sticky Drawer Footer with Price Breakdown & Action Buttons */}
             {items.length > 0 && (
               <div
-                className="shrink-0 p-4 sm:p-5 border-t border-accent/20 bg-surface/95 backdrop-blur-md space-y-3 shadow-[0_-4px_20px_rgba(43,30,26,0.06)]"
+                className="shrink-0 p-4 sm:p-5 border-t border-accent/20 bg-surface/98 backdrop-blur-md space-y-3 shadow-[0_-4px_20px_rgba(43,30,26,0.06)]"
                 style={{
-                  position: 'sticky',
-                  bottom: 0,
-                  transform: 'translate3d(0, 0, 0)',
-                  WebkitTransform: 'translate3d(0, 0, 0)',
                   paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))',
                 }}
               >

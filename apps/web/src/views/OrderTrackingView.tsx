@@ -84,17 +84,15 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
 
   // Stepper logic
   const steps = [
-    { key: 'payment_submitted', label: 'Payment Reference Logged' },
-    { key: 'payment_verified', label: 'Payment Approved by Owner' },
-    { key: 'booked', label: 'Delhivery AWB Booked' },
-    { key: 'in_transit', label: 'In Transit' },
+    { key: 'payment_submitted', label: 'Payment Logged' },
+    { key: 'payment_verified', label: 'Payment Approved' },
+    { key: 'shipped', label: 'Dispatched via Delhivery' },
     { key: 'delivered', label: 'Delivered' },
   ];
 
   const getStepIndex = (status: string, shipmentStatus?: string) => {
-    if (status === 'delivered') return 4;
-    if (shipmentStatus === 'in_transit' || shipmentStatus === 'out_for_delivery') return 3;
-    if (shipmentStatus === 'booked' || shipmentStatus === 'picked_up') return 2;
+    if (status === 'delivered' || shipmentStatus === 'delivered') return 3;
+    if (status === 'shipped' || shipmentStatus === 'in_transit' || shipmentStatus === 'out_for_delivery' || shipmentStatus === 'picked_up' || shipmentStatus === 'booked') return 2;
     if (status === 'payment_verified' || status === 'processing') return 1;
     return 0;
   };
@@ -148,9 +146,9 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
           </div>
         </div>
 
-        {/* Visual Progress Stepper */}
+        {/* Visual Progress Stepper (4 Honest Milestones) */}
         <div className="space-y-4 py-4">
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {steps.map((st, idx) => {
               const isPastOrCurrent = idx <= currentStepIdx;
               return (
@@ -176,26 +174,33 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
           </div>
         </div>
 
-        {/* Delhivery Tracking Card if AWB is generated */}
+        {/* Direct Delhivery Express Tracking Card */}
         {order.shipment ? (
-          <div className="p-5 rounded-xl bg-canvas border border-accent/30 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Truck className="w-5 h-5 text-accent" />
-                <h3 className="font-serif text-base font-semibold text-primary">
-                  Delhivery Express Shipment
-                </h3>
+          <div className="p-5 sm:p-6 rounded-2xl bg-canvas/70 border border-accent/30 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center text-primary">
+                  <Truck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-base sm:text-lg font-semibold text-primary">
+                    Delhivery Express Parcel Tracking
+                  </h3>
+                  <p className="text-xs text-ink-muted">
+                    Official courier dispatch & real-time delivery link
+                  </p>
+                </div>
               </div>
-              <span className="text-xs bg-emerald-100 text-emerald-800 font-bold uppercase px-2 py-0.5 rounded">
-                {order.shipment.status.replace('_', ' ')}
+              <span className="text-xs bg-emerald-100 text-emerald-800 font-bold uppercase px-3 py-1 rounded-full">
+                {order.shipment.status.replace(/_/g, ' ')}
               </span>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="p-4 rounded-xl bg-surface border border-accent/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
               {order.shipment.awbNumber && order.shipment.awbNumber !== 'DIRECT-LINK' ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-ink-muted">Tracking AWB:</span>
-                  <code className="font-mono text-sm font-bold text-primary bg-surface px-2.5 py-1 rounded border border-accent/20 select-all">
+                  <span className="text-ink-muted font-medium">Tracking AWB:</span>
+                  <code className="font-mono text-sm font-bold text-primary bg-canvas px-2.5 py-1 rounded border border-accent/25 select-all">
                     {order.shipment.awbNumber}
                   </code>
                   <button
@@ -207,42 +212,34 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
                   </button>
                 </div>
               ) : (
-                <span className="text-ink-muted">Direct courier tracking link available</span>
+                <span className="text-ink-muted">Official Delhivery courier tracking link</span>
               )}
 
               <a
-                href={order.shipment.trackingUrl}
+                href={
+                  order.shipment.trackingUrl ||
+                  (order.shipment.awbNumber && order.shipment.awbNumber !== 'DIRECT-LINK'
+                    ? `https://www.delhivery.com/track/package/${encodeURIComponent(order.shipment.awbNumber.trim())}`
+                    : 'https://www.delhivery.com')
+                }
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-canvas px-4 py-2 rounded-lg text-xs font-semibold transition shadow-xs"
+                className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-canvas px-5 py-2.5 rounded-xl text-xs font-semibold transition shadow-sm"
               >
-                <span>Track on Delhivery Portal</span>
-                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Track on Delhivery Official Portal</span>
+                <ExternalLink className="w-3.5 h-3.5 text-accent" />
               </a>
             </div>
 
-            {/* Shipment Updates Timeline */}
-            {order.shipment.statusUpdates && order.shipment.statusUpdates.length > 0 && (
-              <div className="pt-3 border-t border-accent/15 space-y-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-accent">
-                  Latest Transit Updates
-                </span>
-                <div className="space-y-1.5">
-                  {order.shipment.statusUpdates.map((update: any, i: number) => (
-                    <div key={i} className="flex justify-between text-xs text-ink-muted">
-                      <span>{update.location ? `${update.location} — ` : ''}{update.remarks || update.status.replace('_', ' ')}</span>
-                      <span>{new Date(update.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <p className="text-[11px] text-ink-muted leading-relaxed">
+              📍 <strong>Direct Courier Redirection:</strong> Tap the button above to view live transit scans, delivery partner details, and expected delivery time directly on Delhivery's official website.
+            </p>
           </div>
         ) : (
           <div className="p-4 rounded-xl bg-canvas border border-accent/20 text-xs text-ink-muted flex items-start gap-2.5">
             <Clock className="w-4 h-4 text-accent shrink-0 mt-0.5" />
             <p>
-              Your payment reference is currently under review by our store admin. Once verified against our bank statement, the parcel will be booked in Delhivery and your live AWB number will appear here.
+              Your payment reference is under review by our store admin. Once verified against our bank statement, the parcel will be booked in Delhivery and your direct tracking link will appear here.
             </p>
           </div>
         )}

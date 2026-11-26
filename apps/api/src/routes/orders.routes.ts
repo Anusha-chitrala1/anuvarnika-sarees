@@ -21,7 +21,7 @@ import {
   buildOwnerVerifyDeepLink,
   sendOwnerTelegramPaymentAlert,
 } from '../lib/telegram-owner-alert.js';
-import { fetchDelhiveryLiveTracking } from '../services/delhivery.js';
+import { generateDelhiveryTrackingUrl } from '@anuvarnika/shared';
 
 export const ordersRouter = new Hono<AppContext>();
 
@@ -337,44 +337,12 @@ ordersRouter.get('/:orderNumber', async (c) => {
     }),
   ]);
 
-  // Auto-sync live tracking from Delhivery when not in personal mode and token is configured
-  if (
-    c.env.DELHIVERY_PERSONAL !== 'true' &&
-    shipment?.awbNumber &&
-    shipment.status !== 'delivered' &&
-    c.env.DELHIVERY_API_TOKEN
-  ) {
-    const live = await fetchDelhiveryLiveTracking(shipment.awbNumber, c.env.DELHIVERY_API_TOKEN);
-    if (live?.found) {
-      const now = Date.now();
-      const updatedHistory = live.scans.length > 0 ? live.scans : JSON.parse(shipment.statusUpdatesJson || '[]');
-      await db
-        .update(schema.shipments)
-        .set({
-          status: live.status,
-          statusUpdatesJson: JSON.stringify(updatedHistory),
-          deliveredAt: live.status === 'delivered' ? now : shipment.deliveredAt,
-          updatedAt: now,
-        })
-        .where(eq(schema.shipments.id, shipment.id));
-
-      let newOrderStatus = order.status;
-      if (live.status === 'picked_up' || live.status === 'in_transit' || live.status === 'out_for_delivery') {
-        newOrderStatus = 'shipped';
-      } else if (live.status === 'delivered') {
-        newOrderStatus = 'delivered';
-      }
-      if (newOrderStatus !== order.status) {
-        await db.update(schema.orders).set({ status: newOrderStatus, updatedAt: now }).where(eq(schema.orders.id, order.id));
-        order.status = newOrderStatus;
-      }
-
-      shipment = {
-        ...shipment,
-        status: live.status,
-        statusUpdatesJson: JSON.stringify(updatedHistory),
-      };
-    }
+  // Ensure direct official Delhivery tracking redirect link is present
+  if (shipment && !shipment.trackingUrl && shipment.awbNumber && shipment.awbNumber !== 'DIRECT-LINK') {
+    shipment = {
+      ...shipment,
+      trackingUrl: generateDelhiveryTrackingUrl(shipment.awbNumber),
+    };
   }
 
   let statusUpdates = [];

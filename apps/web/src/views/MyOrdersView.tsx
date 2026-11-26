@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Truck, ArrowRight, ShoppingBag } from 'lucide-react';
+import { Package, Truck, ArrowRight, ShoppingBag, ExternalLink } from 'lucide-react';
 import { OrderDTO, formatRupees } from '@anuvarnika/shared';
 import { motion } from 'framer-motion';
 import { api } from '../lib/api.js';
@@ -117,43 +117,58 @@ export const MyOrdersView: React.FC<MyOrdersViewProps> = ({
                 ))}
               </div>
 
-              {/* Order Footer: Total, AWB & Track Button */}
-              <div className="pt-3 border-t border-accent/15 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div className="space-y-1">
-                  <p className="text-xs sm:text-sm text-ink-muted">
-                    {ord.items.reduce((sum, i) => sum + i.quantity, 0)} item(s) • Order Total:{' '}
-                    <strong className="text-primary font-sans text-sm sm:text-base font-bold tabular-nums">
-                      {formatRupees(ord.totalPaise)}
-                    </strong>
-                  </p>
-                  {ord.shipment?.trackingUrl && (
-                    <p className="text-xs text-ink-muted flex flex-wrap items-center gap-2">
-                      <Truck className="w-3.5 h-3.5 text-accent" />
-                      {ord.shipment.awbNumber && ord.shipment.awbNumber !== 'DIRECT-LINK' && (
-                        <span>
-                          AWB: <code className="font-bold text-primary">{ord.shipment.awbNumber}</code>
-                        </span>
-                      )}
-                      <a
-                        href={ord.shipment.trackingUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-primary font-semibold underline hover:text-primary-hover"
-                      >
-                        Track Directly on Delhivery ↗
-                      </a>
-                    </p>
-                  )}
-                </div>
+              {/* Order Footer: Total, AWB & Direct Delhivery Tracking */}
+              {(() => {
+                const trackingUrl =
+                  ord.shipment?.trackingUrl ||
+                  (ord.shipment?.awbNumber && ord.shipment.awbNumber !== 'DIRECT-LINK'
+                    ? `https://www.delhivery.com/track/package/${encodeURIComponent(ord.shipment.awbNumber.trim())}`
+                    : null);
 
-                <button
-                  onClick={() => onTrackOrder(ord.orderNumber)}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-primary text-canvas px-4 py-2.5 sm:py-2 rounded-xl sm:rounded-lg text-xs font-semibold hover:bg-primary-hover transition shadow-xs active:scale-95"
-                >
-                  <span>Track & Details</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-accent" />
-                </button>
-              </div>
+                return (
+                  <div className="pt-3 border-t border-accent/15 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div className="space-y-1">
+                      <p className="text-xs sm:text-sm text-ink-muted">
+                        {ord.items.reduce((sum, i) => sum + i.quantity, 0)} item(s) • Order Total:{' '}
+                        <strong className="text-primary font-sans text-sm sm:text-base font-bold tabular-nums">
+                          {formatRupees(ord.totalPaise)}
+                        </strong>
+                      </p>
+                      {ord.shipment?.awbNumber && ord.shipment.awbNumber !== 'DIRECT-LINK' && (
+                        <p className="text-xs text-ink-muted flex items-center gap-1.5">
+                          <Truck className="w-3.5 h-3.5 text-accent" />
+                          <span>
+                            Delhivery AWB: <code className="font-bold text-primary">{ord.shipment.awbNumber}</code>
+                          </span>
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                      {trackingUrl && (
+                        <a
+                          href={trackingUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 bg-accent hover:bg-accent-hover text-canvas px-4 py-2.5 sm:py-2 rounded-xl sm:rounded-lg text-xs font-semibold transition shadow-xs"
+                        >
+                          <Truck className="w-3.5 h-3.5" />
+                          <span>Track on Delhivery</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+
+                      <button
+                        onClick={() => onTrackOrder(ord.orderNumber)}
+                        className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 bg-primary text-canvas px-4 py-2.5 sm:py-2 rounded-xl sm:rounded-lg text-xs font-semibold hover:bg-primary-hover transition shadow-xs active:scale-95"
+                      >
+                        <span>Order Details</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-accent" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
             </motion.div>
           ))}
         </div>

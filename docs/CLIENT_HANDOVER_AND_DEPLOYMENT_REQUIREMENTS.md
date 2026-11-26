@@ -14,14 +14,14 @@
 - **Cart & Promo Coupons:** Slide-over bag drawer with live free-shipping progress bar and coupon validation (`FESTIVE10`, `WELCOME500`, etc.).
 - **Email Verification (OTP) Gate:** Shoppers browse freely, then verify their email via a 6-digit code before placing an order or initiating UPI payment.
 - **Direct UPI QR Checkout (0% Gateway Fee):** Dynamic NPCI UPI QR code for the exact payable amount, 12-digit UTR bank reference submission, optional payment screenshot upload, and duplicate-UTR protection.
-- **My Orders & Live Tracking:** Shows each ordered saree's image, title, shade, quantity, item price, order total, Delhivery AWB, copyable tracking link, and live courier scan timeline.
+- **My Orders & Direct Delhivery Tracking:** Shows each ordered saree's image, title, shade, quantity, item price, order total, Delhivery AWB, and a 1-tap direct **"Track on Delhivery ↗"** button that redirects customers straight to Delhivery's official live tracking portal.
 - **Verified Post-Delivery Reviews:** Strictly unlocked only after an order reaches `delivered`.
 
 ### B. Admin Command Hub (`anuvarnika.sarees@gmail.com` Only)
 - **Full-Width Left-Sidebar Dashboard:**
   1. **Analytics & Trends:** Verified revenue, order counts, 7-day revenue chart, clickable **Most Viewed Sarees** (opens saree page), **Top Ordered Sarees**, and **Low Stock Alerts** with one-click Restock.
   2. **Pending UPI Approvals:** Instant email + header badge alert on UTR submission, uploaded proof viewer, **Approve & Confirm** (deducts real stock) or **Reject with Reason** (releases hold).
-  3. **Delhivery & Orders:** Enter Delhivery AWB ID + one-click **Sync Delhivery** (auto-syncs live scans when `DELHIVERY_API_TOKEN` is configured).
+  3. **Delhivery & Orders:** Enter Delhivery AWB ID (or tracking link); customers track directly on Delhivery's live portal with 1 tap.
   4. **Saree Catalog & Dedicated Add/Edit Saree Page:** Full-page editor with `(Optional)` field labels, photo upload, multi-variant builder (**Add Variant** / **Delete Variant**), Pin-to-Top, Sold-Out, and Archive controls.
   5. **Coupons & Offers:** Create flat/percentage promo codes, pause/activate, or delete coupons.
   6. **Settings & Reviews:** Live edit Store UPI ID, Payee Name, Announcement Bar text, Free Shipping threshold, Default Shipping fee, and moderate customer reviews.
@@ -41,7 +41,7 @@
 3. **Order Placed & 15-Minute Stock Hold:** Submitting the shipping form atomically reserves stock (`reserved_stock + qty`), sets order status to `awaiting_payment`, and emails order details.
 4. **UPI Payment & UTR Submission:** Customer scans the UPI QR, pays directly to the store UPI ID, and submits their 12-digit UTR (+ optional receipt image). Duplicate UTRs are blocked (`409 Conflict`). Order status becomes `payment_submitted`, and an **instant alert** is sent to `anuvarnika.sarees@gmail.com`.
 5. **Admin Verification:** Store owner checks bank credit and clicks **Approve & Confirm**. Real stock is deducted (`stock_qty - qty`), hold is cleared, status moves to `payment_verified`, and the customer receives a confirmation email. *(If rejected, stock hold is released back to inventory.)*
-6. **Delhivery Dispatch & Live Tracking:** Admin enters the Delhivery AWB ID. When `DELHIVERY_API_TOKEN` is set, live scans sync automatically (`picked_up` → `in_transit` → `out_for_delivery` → `delivered`), sending Shipped and Delivered emails.
+6. **Delhivery Dispatch & Direct Tracking Link:** Admin enters the Delhivery AWB ID (or parcel tracking link). The system automatically generates a direct official Delhivery tracking link (`https://www.delhivery.com/track/package/${awb}`) for the customer. Customers track their parcel directly on Delhivery's official portal with 1 tap from **My Orders** and **Order Details**, completely eliminating third-party tracking API dependencies and token costs.
 7. **Post-Delivery Review:** Once `delivered`, the customer can submit a verified star rating and review.
 
 ---
@@ -58,8 +58,6 @@
 | `GMAIL_SENDER_EMAIL` / `GMAIL_SENDER_NAME` | `apps/api/wrangler.jsonc` (`anuvarnika.sarees@gmail.com`) | Sender identity for customer transactional emails |
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_OWNER_CHAT_ID` | `wrangler secret put ...` | Sends instant Telegram Bot-Only UPI payment alerts with 1-tap deep link to store owner |
 | `APP_BASE_URL` | `apps/api/wrangler.jsonc` (`https://anuvarnikasarees.pages.dev`) | Base URL used to build `/admin/orders/:orderId?action=verify` Telegram deep links |
-| `DELHIVERY_PERSONAL` | `apps/api/wrangler.jsonc` (`"true"` / `"false"`) | Set `"true"` for personal Delhivery accounts (admin pastes tracking link directly for users); set `"false"` to use merchant API token |
-| `DELHIVERY_API_TOKEN` | `wrangler secret put DELHIVERY_API_TOKEN` *(Only if `DELHIVERY_PERSONAL=false`)* | Auto-syncs live Delhivery tracking scans & statuses by AWB |
 | `CROSS_ORIGIN_COOKIES` | `apps/api/wrangler.jsonc` (`"true"` in UAT/Prod) | Enables `SameSite=None; Secure` cookies across `pages.dev` & `workers.dev` |
 | `VITE_API_URL` | `apps/web/.env.uat` / `.env.production` | Points the frontend build to the UAT or Production Worker API URL |
 | `DB` (D1 Binding) | `apps/api/wrangler.jsonc` (`anuvarnika-db-uat` / `-prod`) | Serverless SQLite database (23 tables) |
@@ -80,11 +78,12 @@ Please share or confirm the following items before we provision UAT and Producti
 3. **Telegram Bot Owner Alerts (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_OWNER_CHAT_ID`):**
    - Message `@BotFather` on Telegram → `/newbot` → copy the Bot Token (`TELEGRAM_BOT_TOKEN`).
    - Send `/start` to your new bot, then get your numeric Chat ID (e.g., via `@userinfobot` or `getUpdates`) and set `TELEGRAM_OWNER_CHAT_ID`. Every UPI UTR submission sends an instant Telegram card with a 1-tap **Open & Approve Order** button.
-3. **Delhivery Account Mode (`DELHIVERY_PERSONAL`):**
-   - Currently configured as **`DELHIVERY_PERSONAL=true`** for your **personal Delhivery account**: after booking a parcel in Delhivery, simply paste the tracking link in **Admin Hub → Delhivery & Orders**, and customers can click to track their parcel directly.
-   - *(If you later upgrade to a Delhivery One seller account, set `DELHIVERY_PERSONAL=false` and add `DELHIVERY_API_TOKEN` for automatic live scan syncing.)*
-4. **Official Business UPI & Contact Details:**
+4. **Delhivery Shipping (Zero API Token Needed):**
+   - Ship using your existing Delhivery personal or merchant account.
+   - Upon parcel booking, copy the Waybill / AWB Number (e.g., `1234567890123`) and paste it into **Admin Hub → Delhivery & Orders**.
+   - The store automatically generates the direct official Delhivery tracking portal link (`https://www.delhivery.com/track/package/${awb}`) for customers on their **My Orders** screen.
+5. **Official Business UPI & Contact Details:**
    - Exact **UPI ID** (e.g., `anuvarnika@okaxis`) and **Payee Name** to receive payments.
    - Official **Support Phone Number** & **Announcement Bar Message** (can also be edited anytime inside Admin Settings).
-5. **Initial Saree Catalog (Optional for Launch):**
+6. **Initial Saree Catalog (Optional for Launch):**
    - Production starts completely clean (`0` demo products). You can add your sarees directly after launch from **Admin Hub → Add New Saree**, or share photos, titles, prices, and stock counts if you want them pre-loaded.

@@ -22,7 +22,6 @@ export interface Env {
   FRONTEND_URL?: string;
   CROSS_ORIGIN_COOKIES?: string;
   DELHIVERY_PERSONAL?: string;
-  DELHIVERY_API_TOKEN?: string;
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_OWNER_CHAT_ID?: string;
   APP_BASE_URL?: string;

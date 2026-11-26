@@ -21,7 +21,7 @@ import {
   sendDelhiveryShippedEmail,
   sendOrderDeliveredEmail,
 } from '../services/email.js';
-import { fetchDelhiveryLiveTracking } from '../services/delhivery.js';
+import { generateDelhiveryTrackingUrl } from '@anuvarnika/shared';
 
 export const adminRouter = new Hono<AppContext>();
 
@@ -236,35 +236,17 @@ adminRouter.post('/orders/:id/shipment', async (c) => {
     } catch (e) {}
   }
 
-  // Auto-sync live tracking from Delhivery ONLY when not in personal mode and DELHIVERY_API_TOKEN is configured
-  let resolvedStatus = status;
-  let resolvedLocation = location;
-  let resolvedRemarks = remarks;
-  let liveScans: typeof history | null = null;
+  // Append new status event to shipment history
+  const resolvedStatus = status;
+  const resolvedLocation = location;
+  const resolvedRemarks = remarks;
 
-  if (!isPersonalMode && c.env.DELHIVERY_API_TOKEN && rawAwb) {
-    const live = await fetchDelhiveryLiveTracking(awbNumber, c.env.DELHIVERY_API_TOKEN);
-    if (live?.found) {
-      resolvedStatus = live.status;
-      resolvedLocation = live.location || location;
-      resolvedRemarks = live.remarks || remarks;
-      if (live.scans.length > 0) {
-        liveScans = live.scans;
-      }
-    }
-  }
-
-  if (liveScans) {
-    history = liveScans;
-  } else {
-    // Append new status event
-    history.push({
-      status: resolvedStatus,
-      timestamp: now,
-      location: resolvedLocation || undefined,
-      remarks: resolvedRemarks || undefined,
-    });
-  }
+  history.push({
+    status: resolvedStatus,
+    timestamp: now,
+    location: resolvedLocation || undefined,
+    remarks: resolvedRemarks || undefined,
+  });
 
   let shipmentId = existingShipment?.id;
 
@@ -358,56 +340,17 @@ adminRouter.post('/orders/:id/sync-delhivery', async (c) => {
     return c.json({ error: 'No Delhivery AWB assigned to this order yet.' }, 404);
   }
 
-  if (!c.env.DELHIVERY_API_TOKEN) {
-    return c.json({
-      synced: false,
-      message: 'Live Delhivery API token is not configured yet. Customers can track via the Delhivery tracking link.',
-      trackingUrl: shipment.trackingUrl,
-      status: shipment.status,
-    });
-  }
-
-  const live = await fetchDelhiveryLiveTracking(shipment.awbNumber, c.env.DELHIVERY_API_TOKEN);
-  if (!live || !live.found) {
-    return c.json({
-      synced: false,
-      message: 'No scan updates found yet from Delhivery for this AWB.',
-      trackingUrl: shipment.trackingUrl,
-      status: shipment.status,
-    });
-  }
-
-  const history = live.scans.length > 0 ? live.scans : JSON.parse(shipment.statusUpdatesJson || '[]');
-  await db
-    .update(schema.shipments)
-    .set({
-      status: live.status,
-      statusUpdatesJson: JSON.stringify(history),
-      deliveredAt: live.status === 'delivered' ? now : shipment.deliveredAt,
-      updatedAt: now,
-    })
-    .where(eq(schema.shipments.id, shipment.id));
-
-  const order = await db.query.orders.findFirst({
-    where: eq(schema.orders.id, orderId),
-  });
-  if (order) {
-    let newOrderStatus = order.status;
-    if (live.status === 'picked_up' || live.status === 'in_transit' || live.status === 'out_for_delivery') {
-      newOrderStatus = 'shipped';
-    } else if (live.status === 'delivered') {
-      newOrderStatus = 'delivered';
-    }
-    if (newOrderStatus !== order.status) {
-      await db.update(schema.orders).set({ status: newOrderStatus, updatedAt: now }).where(eq(schema.orders.id, order.id));
-    }
-  }
+  const trackingUrl =
+    shipment.trackingUrl ||
+    (shipment.awbNumber && shipment.awbNumber !== 'DIRECT-LINK'
+      ? generateDelhiveryTrackingUrl(shipment.awbNumber)
+      : 'https://www.delhivery.com');
 
   return c.json({
     synced: true,
-    status: live.status,
-    scans: history,
-    message: `Synced live status "${live.status}" from Delhivery`,
+    message: 'Direct Delhivery official tracking link is active for this order.',
+    trackingUrl,
+    status: shipment.status,
   });
 });
 

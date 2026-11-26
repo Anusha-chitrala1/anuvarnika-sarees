@@ -91,11 +91,13 @@ The visual identity is derived directly from the AnuVarnika brand mark:
 - Submission triggers an **Instant Telegram Bot Owner Alert** (with a 1-tap `✅ Open & Approve Order` deep link to `/admin/orders/:orderId?action=verify`) + an in-app D1 `admin_notifications` bell alert in Admin Hub (no owner alert emails are sent for UTR submissions).
 - Admin verifies actual bank credit and clicks **Approve Payment** (deducts real stock, confirms order, triggers Gmail confirmation email) or **Reject Payment** (releases stock hold back to inventory and emails rejection reason + resubmit instructions).
 
-### 🚚 Manual Delhivery Tracking (Phase 1)
-- Admin enters Delhivery AWB number and tracking link after booking in Delhivery.
-- Shipment lifecycle progression: `Booked` -> `Picked Up` -> `In Transit` -> `Out for Delivery` -> `Delivered` / `RTO`.
-- Customers track live shipment status, copyable AWB, and direct Delhivery tracking portal links.
-- Automatic Gmail transactional emails dispatched upon pickup and delivery.
+### 🚚 Direct Delhivery Tracking Link Redirection
+- Admin enters Delhivery AWB number (or tracking link) upon parcel booking.
+- System automatically generates the official Delhivery tracking portal URL (`https://www.delhivery.com/track/package/${awbNumber}`).
+- In **My Orders**, customers tap **"Track on Delhivery ↗"** and are redirected directly to Delhivery's live tracking portal for real-time location milestones and delivery agent details.
+- In **Order Details**, customers see their verified order milestones, copyable AWB, and a 1-tap **"Track on Delhivery Official Portal ↗"** redirect button.
+- Zero courier API token maintenance or brittle polling scans required—100% reliable direct courier tracking.
+- Automatic Gmail transactional emails dispatched with the direct tracking link upon dispatch.
 
 ### ⭐ Verified Post-Delivery Reviews
 - Customer review submission is strictly restricted by backend database checks to buyers whose order has reached status `delivered`.

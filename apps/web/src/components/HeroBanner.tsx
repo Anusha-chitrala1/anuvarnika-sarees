@@ -152,22 +152,22 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onExplore, onAbout, visi
                 />
 
                 {/* Ambient vignette shadow for text legibility */}
-                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 via-black/25 to-transparent pointer-events-none" />
 
                 {/* High-Contrast Floating Glass Card with Glow */}
-                <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 p-4 rounded-xl bg-surface/95 backdrop-blur-md border border-accent/40 shadow-xl transition-all duration-300 group-hover:shadow-[0_8px_30px_rgba(168,121,62,0.3)]">
+                <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 p-4 rounded-xl bg-[#FFFDF9]/98 backdrop-blur-md border border-[#A8793E]/50 shadow-[0_12px_36px_rgba(43,30,26,0.25)] transition-all duration-300">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-accent block">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#A8793E] block">
                       Signature Collection
                     </span>
-                    <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-300">
                       <CheckCircle2 className="w-3 h-3 text-emerald-600" /> In Stock
                     </span>
                   </div>
-                  <h3 className="font-serif text-lg sm:text-xl font-semibold text-primary truncate mt-0.5">
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-[#7A231E] truncate mt-0.5">
                     Royal Crimson Zari Silk
                   </h3>
-                  <p className="text-xs text-ink-muted truncate mt-0.5">
+                  <p className="text-xs text-[#5E4A42] font-medium truncate mt-0.5">
                     Pure Mulberry Silk • Festive Edition
                   </p>
                 </div>

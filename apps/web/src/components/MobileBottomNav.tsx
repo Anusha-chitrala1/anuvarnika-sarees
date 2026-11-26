@@ -74,18 +74,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   return (
     <nav
       aria-label="Mobile bottom navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-xl border-t border-accent/20 shadow-[0_-4px_24px_rgba(43,30,26,0.08)] px-2 pt-1.5"
+      className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/98 backdrop-blur-xl border-t border-accent/20 shadow-[0_-4px_24px_rgba(43,30,26,0.08)] px-2 pt-1.5"
       style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        transform: 'translate3d(0, 0, 0)',
-        WebkitTransform: 'translate3d(0, 0, 0)',
-        backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
-        willChange: 'transform',
-        touchAction: 'manipulation',
         paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))',
       }}
     >

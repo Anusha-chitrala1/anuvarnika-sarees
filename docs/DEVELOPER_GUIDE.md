@@ -27,18 +27,18 @@
                                │
          ┌─────────────────────┼─────────────────────┐
          ▼                     ▼                     ▼
-┌─────────────────┐   ┌─────────────────┐   ┌───────────────────────┐
-│ Cloudflare D1   │   │ Cloudflare R2   │   │ External Integrations │
-│ (packages/db)   │   │ (BUCKET)        │   │ • Gmail REST API      │
-│ 23 SQLite Tables│   │ Product Photos  │   │ • Delhivery Tracking  │
-│ Drizzle ORM     │   │ Payment Proofs  │   │   API (Free Token)    │
-└─────────────────┘   └─────────────────┘   └───────────────────────┘
+┌─────────────────┐   ┌─────────────────┐   ┌───────────────────────────┐
+│ Cloudflare D1   │   │ Cloudflare R2   │   │ External Integrations     │
+│ (packages/db)   │   │ (BUCKET)        │   │ • Gmail REST API (OAuth2) │
+│ 23 SQLite Tables│   │ Product Photos  │   │ • Telegram Bot API        │
+│ Drizzle ORM     │   │ Payment Proofs  │   │ • Delhivery Tracking Link │
+└─────────────────┘   └─────────────────┘   └───────────────────────────┘
 ```
 
 ### Monorepo Packages
 - **`packages/shared`**: Shared TypeScript DTOs (`types.ts`), Zod validation schemas (`schemas.ts`), logo-extracted theme tokens & presets (`theme.ts`), integer paise formatting (`formatRupees`), NPCI UPI URI generator (`generateUpiUrl`), and Delhivery tracking URL builder (`generateDelhiveryTrackingUrl`).
 - **`packages/db`**: Drizzle ORM schema (`schema.ts`, 23 tables), SQL schema migration (`migrations/0000_steady_mordo.sql`), UAT sample seed (`seeds/seed-uat.sql`), and clean Production seed (`seeds/seed-prod.sql`).
-- **`apps/api`**: Hono serverless API running on Cloudflare Workers (`src/index.ts`) with services for deadlock-safe stock (`services/stock.ts`), Web Crypto OTP & sessions (`services/auth.ts`), Gmail REST API HTML emails (`lib/gmail-mailer.ts` & `services/email.ts`), Telegram Bot-Only owner alerts (`lib/telegram-owner-alert.ts`), atomic D1 visitor counter & traffic analytics (`routes/analytics.ts`), and Delhivery live tracking sync (`services/delhivery.ts`).
+- **`apps/api`**: Hono serverless API running on Cloudflare Workers (`src/index.ts`) with services for deadlock-safe stock (`services/stock.ts`), Web Crypto OTP & sessions (`services/auth.ts`), Gmail REST API HTML emails (`lib/gmail-mailer.ts` & `services/email.ts`), Telegram Bot-Only owner alerts (`lib/telegram-owner-alert.ts`), atomic D1 visitor counter & traffic analytics (`routes/analytics.ts`), and direct Delhivery tracking URL routing (`routes/orders.routes.ts` & `routes/admin.routes.ts`).
 - **`apps/web`**: React 18 storefront & Admin Hub with Zustand state (`useThemeStore`, `useAuthStore`, `useCartStore`, `useWishlistStore`), CSS custom-property live theme injection, Framer Motion page/card/drawer animations, and Recharts analytics.
 
 ---
@@ -49,11 +49,11 @@
 - **Storefront**:
   - `HomeView.tsx`: Hero banner + featured/new-arrival sections (automatically hidden when empty).
   - `ShopView.tsx`: Sarees page with **Grid / List Row** layout switcher, **Price Range** pills (`All`, `₹0–₹1,000`, `₹1,000–₹2,000`, `₹2,000–₹5,000`, `₹5,000–₹10,000`, `₹10,000+`), **New Arrivals Only** toggle, and Sort selector.
-  - `MyOrdersView.tsx`: Displays each ordered item's thumbnail, title, shade, quantity, item total, order total, Delhivery AWB, and **Track & Details**.
+  - `MyOrdersView.tsx`: Displays each ordered item's thumbnail, title, shade, quantity, item total, order total, Delhivery AWB, direct **"Track on Delhivery ↗"** link (redirects to official Delhivery tracker), and **Order Details**.
 - **Full-Width Left-Sidebar Admin Hub (`AdminDashboardView.tsx`)**:
   - **Analytics & Trends**: Revenue/order KPIs, 7-day revenue line chart, Most Viewed Sarees bar chart + clickable list (opens product detail), Top Ordered Sarees, and Low Stock alerts.
   - **UPI Approvals**: Instant 15s notification polling, UTR inspection, R2 payment screenshot preview, Approve / Reject with reason.
-  - **Delhivery & Orders**: Enter AWB ID + one-click **Sync Delhivery** or manual status override.
+  - **Delhivery & Orders**: Enter Delhivery AWB number (or tracking link); the system automatically creates the customer tracking URL.
   - **Saree Catalog & Dedicated Add/Edit Saree Page**: Full-page editor (not a modal) with `(Optional)` badges on optional fields, R2 photo upload, multi-variant builder with **Add Variant** and **Delete Variant**, and Pin/Out-of-Stock/Archive controls.
   - **Coupons & Offers**: Create, toggle Active/Paused, and delete coupons.
   - **Settings & Reviews**: Live edit UPI ID, announcement bar text, shipping thresholds, and approve/hide customer reviews.
@@ -71,9 +71,9 @@
   - 6-digit OTPs hashed with SHA-256 (`10m` expiry, max `5` wrong attempts, max `3` sends / `5m`).
   - Signed `HttpOnly`, `Secure` (hosted), `SameSite=None` (cross-origin UAT/Prod) or `SameSite=Lax` (local) session cookies.
   - `PUT /api/theme` strictly enforces `user.email === ADMIN_EMAIL` (`anuvarnika.sarees@gmail.com`).
-- **Delhivery Tracking (`DELHIVERY_PERSONAL` vs `DELHIVERY_API_TOKEN`)**:
-  - When `DELHIVERY_PERSONAL="true"` (default in `wrangler.jsonc` for personal Delhivery accounts): Admin simply pastes the Delhivery tracking link (and optional AWB) in Admin Hub; customers see the direct tracking link in **My Orders** and **Order Tracking** without needing a Delhivery One API token.
-  - When `DELHIVERY_PERSONAL="false"` and `DELHIVERY_API_TOKEN` secret is set: `GET /api/orders/:orderNumber`, `POST /api/admin/orders/:id/shipment`, and `POST /api/admin/orders/:id/sync-delhivery` fetch live Delhivery scans and auto-sync shipment + order status.
+- **Direct Delhivery Courier Tracking Link**:
+  - When an admin dispatches an order with a Delhivery AWB number, the backend generates the direct tracking URL (`https://www.delhivery.com/track/package/${awbNumber}`) using `@anuvarnika/shared`.
+  - In **My Orders** and **Order Details**, customers tap **Track on Delhivery** and are redirected straight to Delhivery's official tracking portal—zero API token complexity, zero maintenance cost, and 100% reliable tracking.
 
 ---
 
@@ -103,7 +103,6 @@ npx wrangler secret put GMAIL_CLIENT_SECRET --env uat
 npx wrangler secret put GMAIL_REFRESH_TOKEN --env uat
 npx wrangler secret put TELEGRAM_BOT_TOKEN --env uat
 npx wrangler secret put TELEGRAM_OWNER_CHAT_ID --env uat
-# Optional: npx wrangler secret put DELHIVERY_API_TOKEN --env uat
 
 cd ../..
 pnpm db:migrate:uat
@@ -126,7 +125,6 @@ npx wrangler secret put GMAIL_CLIENT_SECRET --env production
 npx wrangler secret put GMAIL_REFRESH_TOKEN --env production
 npx wrangler secret put TELEGRAM_BOT_TOKEN --env production
 npx wrangler secret put TELEGRAM_OWNER_CHAT_ID --env production
-# Optional: npx wrangler secret put DELHIVERY_API_TOKEN --env production
 
 cd ../..
 pnpm db:migrate:prod
@@ -162,5 +160,5 @@ pnpm deploy:web:prod
 | `429 Too Many Requests` on OTP | More than 3 OTP requests within 5 minutes for the same email | Wait 5 minutes or clear `otp_verifications` in local D1 during testing. |
 | `409 Conflict` when placing order | Stock held by unexpired `awaiting_payment` orders (`reserved_stock`) | Wait 15 minutes for auto-expiry or reset local `reservation_expires_at` via SQL. |
 | `409 Conflict` on UTR submission | Unique constraint on `payments.utr_reference` blocked duplicate UTR | Use a new unique 12-character UTR for each test order. |
-| Delhivery status stays `booked` after entering AWB | `DELHIVERY_API_TOKEN` is not set in Worker secrets | Either add `DELHIVERY_API_TOKEN` via `wrangler secret put` or use the optional status dropdown in Admin Hub. |
+| Customer clicks Track on Delhivery | Redirects to Delhivery portal | Customers track live parcel status directly on Delhivery; admin can also update order status to delivered in Admin Hub anytime. |
 | R2 image returns 404 locally | Local Wrangler state cleared or `BUCKET` not bound | Re-upload image in Admin Hub while `pnpm dev` is running (stored in `.wrangler/state/v3/r2/`). |

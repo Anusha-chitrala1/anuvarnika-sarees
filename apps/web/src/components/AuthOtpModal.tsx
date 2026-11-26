@@ -36,7 +36,7 @@ export const AuthOtpModal: React.FC = () => {
     }
   }, [isOtpModalOpen]);
 
-  // Handle countdown timer for Resend
+  // Handle countdown timer for OTP re-send
   useEffect(() => {
     if (step !== 'otp' || countdown <= 0) return;
     const timer = setInterval(() => {
